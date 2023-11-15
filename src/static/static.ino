@@ -12,7 +12,7 @@ File root;
 File dataFile;
 
 String filename;
-int transducerVoltage = 0;
+int transducerValue = 0;
 float force = 0;
 unsigned long millisAtCurrentLoop = 0;
 unsigned long millisAtIgnitionStart = 0;
@@ -34,7 +34,7 @@ const float LOAD_CELL_CALIBRATION_FACTOR = 98.2;
 // Hay que conectar el pin 15 del chip H711X a VCC para que el sampling sea de 80Hz en vez de 10Hz
 // Memoria SD por el bus SPI 
 
-const int FIRE_DURATION = 5000;
+const int FIRE_DURATION = 10000;
 const long int MAX_BURNING_TIME = 120000; // 2 Mins
 const long int COUNTDOWN_DURATION = 30000; // Esperar 30 segundos antes de ignicion
 
@@ -103,7 +103,7 @@ void sdDataLogger() {
   if (hasHeaders == false) {
     // CSV format:
     // Millis from init, Status, Force, Transducer Value
-    dataFile.println("Ms\tStatus\tF\tV");
+    dataFile.println("Ms\tStatus\tF\tADC");
     hasHeaders = true;
   }
   dataFile.print(millisAtCurrentLoop);
@@ -112,7 +112,7 @@ void sdDataLogger() {
   dataFile.print("\t");
   dataFile.print(force);
   dataFile.print("\t");
-  dataFile.print(transducerVoltage);
+  dataFile.print(transducerValue);
   dataFile.print("\n");
   dataFile.close();
 }
@@ -159,9 +159,9 @@ void loop() {
       status = STATUS_BURNING;
       Serial.println("Ignicion finalizada");
     }
-    transducerVoltage = analogRead(TRANSDUCER_ANALOG_PIN);
+    transducerValue = analogRead(TRANSDUCER_ANALOG_PIN);
     force = scale.get_units(1);
-//  float pressure = ((transducerVoltage * (5.0 / 1023.0)) * 2000) / 5;
+//  float pressure = ((transducerValue * (5.0 / 1023.0)) * 2000) / 5;
     
    
 //  Serial.print(millisAtCurrentLoop);
@@ -170,7 +170,7 @@ void loop() {
 //  Serial.print("\t");
 //  Serial.print(force);
 //  Serial.print("\t");
-//  Serial.print(transducerVoltage);
+//  Serial.print(transducerValue);
 //  Serial.print("\n");
     Serial.println(millisAtCurrentLoop - millisAtIgnitionStart);
     Serial.println(MAX_BURNING_TIME);
