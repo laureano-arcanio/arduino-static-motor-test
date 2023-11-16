@@ -30,7 +30,7 @@ La salida de datos es un archivo con nombre `STATIC_1.csv` el numero 1 se genera
 El formato de salida es:
 
 | Tiempo | Codigo | Peso | ADC Value|
-|--|--|--|--|--|
+|--|--|--|--|
 | 772 | 40 | 0 | 0 |
 | 782 | 60 | 3.2 | 10 |
 | 792 | 60 | 5.4 | 15|
