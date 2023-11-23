@@ -3,7 +3,6 @@ import matplotlib.pyplot as plt
 from matplotlib.backends.backend_pdf import PdfPages
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
-
 import os
 
 file_name = 'STATIC_1.csv'
@@ -14,7 +13,6 @@ name_without_extension = file_name.split('.')[0]
 PSI_TO_ATM = 0.068046
 FUEL_MASS = user_input = float(input("Please enter engine fuel mass in kg: "))
 
-# no es necesario, pero es una buena practica
 column_names = ['Ms', 'Status', 'F', 'ADC']
 data = pd.read_csv(file_path, sep="\t", header=0, names=column_names)
 
@@ -37,40 +35,29 @@ data['F'] = data['F'].round(2)
 data['PSI'] = data['PSI'].round(2)
 data['ATM'] = data['ATM'].round(4)
 
-# print(data.head())
-
 def get_ignition_index(col_name):
     ignition_index = None
-    # Variable para mantener el recuento de incrementos consecutivos
     counter = 0
-    # Booleano para registrar si se permitió una excepción
     exception_happen = False
     for index, row in data.iterrows():
         if index > 0:
-            # Verifica si el valor actual es mayor que el anterior
             if row[col_name] > data.loc[index - 1, col_name]:
                 counter += 1
             else:
-                # Reinicia el counter si no hay un incremento
                 counter = 0
 
-            # Si hay cinco incrementos consecutivos, almacena la fila
             if counter == 4:
                 ignition_index = index - 6
-                break  # Puedes eliminar esto si quieres encontrar todos los casos
+                break
             elif counter == 3:
-                # Si hay tres incrementos, permite una excepción
                 exception_happen = True
 
-            # Si el siguiente valor no es mayor pero se permitió una excepción
-            # cuenta esto como un incremento adicional y reinicia el counter
             if exception_happen and counter == 2:
                 counter = 0
                 exception_happen = False
     return ignition_index
 
 def get_burnout_index(col_name, threeshold, start_index):
-    # print("Start index", start_index)
     for index, row in data.iloc[start_index:].iterrows():
         if row[col_name] < threeshold:
             return index -1
@@ -188,10 +175,9 @@ pdf.drawText(text_object)
 fig.savefig("temp_image.png", bbox_inches="tight")
 pdf.drawImage("temp_image.png", 50, 50, width=480, height=480)
 
-# Close the PDF
 pdf.save()
 
-plt.close(fig)  # Close the Matplotlib figure to prevent display in notebook
+plt.close(fig)
 
 if os.path.exists("./temp_image.png"):
     os.remove("./temp_image.png")
