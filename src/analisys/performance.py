@@ -11,6 +11,9 @@ file_folder = '../test_data/'
 file_path = file_folder + file_name  # Replace 'path_to_your_file.csv' with your file path
 name_without_extension = file_name.split('.')[0]
 
+PSI_TO_ATM = 0.068046
+FUEL_MASS = user_input = float(input("Please enter engine fuel mass in kg: "))
+
 # no es necesario, pero es una buena practica
 column_names = ['Ms', 'Status', 'F', 'ADC']
 data = pd.read_csv(file_path, sep="\t", header=0, names=column_names)
@@ -24,10 +27,10 @@ data['Delta'] = data['Ms'].diff().fillna(0)
 
 # create a column converting g t kg
 data['KgF'] = data['F'] / 1000
-data['KgF'] = data['KgF']
+data['N'] = data['KgF'] * 9.8
 # data['ADC'] = data['ADC'].astype(int)
 data['PSI'] = (data['ADC'] * 2000) / 1023
-data['ATM'] = data['PSI'] * 0.068046
+data['ATM'] = data['PSI'] * PSI_TO_ATM
 
 data['Delta'] = data['Delta'].round(4)
 data['F'] = data['F'].round(2)
@@ -108,37 +111,24 @@ ignition_index = get_ignition_index('ADC')
 burnout_index = get_burnout_index('F', 0, data['F'].idxmax())
 average_time_interval = data['Delta'].mean()
 burn_time = data.loc[burnout_index]['Ms'] - data.loc[ignition_index]['Ms']
-total_thrust =  data.iloc[ignition_index:burnout_index + 1]['KgF'].sum() * 9.8
+total_thrust =  data.iloc[ignition_index:burnout_index + 1]['N'].sum()
 total_impulse = total_thrust * average_time_interval
-specific_impulse = (total_impulse / 0.015) / 9.8
+specific_impulse = (total_impulse / FUEL_MASS) / 9.8
 peak_pressure = data['ATM'].max()
-peak_thrust = data['KgF'].max()
-
-
-print('Engine ignition at:', data.loc[ignition_index]['Ms'], 's')
-print('Engine shutdown at:', data.loc[burnout_index]['Ms'], 's')
-print('Peak Pressure:', peak_pressure.round(3), 'atm')
-print('Peak Thrust:', peak_pressure.round(3), 'KgF')
-print('Burn time:', peak_thrust.round(3), 's')
-print('Average interval:', (average_time_interval * 1000).round(2), 'ms')
-print('Thrust:', total_thrust, 'N')
-print('Total impulse:', total_impulse.round(2), 'N*s')
-print('Specific impulse:', specific_impulse.round(2), 'N*s')
-print('Motor Classification:', classify_motor(total_impulse))
-
-# new_file = file_folder + name_without_extension + '_Calcs.csv'
-
-# # Guardando el DataFrame en un nuevo archivo CSV
-# data.to_csv(new_file, sep='\t', index=False) 
+peak_thrust = data['N'].max()
+average_pressure = data['ATM'].iloc[ignition_index: burnout_index + 1].mean()
+max_pressure_increase = data['ATM'].iloc[ignition_index: burnout_index + 1].diff().max()
+max_pressure_drop = data['Ms'].iloc[ignition_index: burnout_index + 1].diff().min()
 
 fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(8, 8))
-# Graficar Fuerza_1
-ax1.plot(data['Ms'].iloc[ignition_index:burnout_index], data['F'].iloc[ignition_index:burnout_index], marker='o', linestyle='-', color='blue')
+# Force
+ax1.plot(data['Ms'].iloc[ignition_index:burnout_index], data['N'].iloc[ignition_index:burnout_index], marker='o', linestyle='-', color='blue')
 ax1.set_xlabel('Time')
-ax1.set_ylabel('KgF')
+ax1.set_ylabel('N')
 ax1.set_title('Force vs Time')
 ax1.grid(True)
 
+# Pressure
 ax2.plot(data['Ms'].iloc[ignition_index:burnout_index], data['ATM'].iloc[ignition_index:burnout_index], marker='o', linestyle='-', color='blue')
 ax2.set_xlabel('Time')
 ax2.set_ylabel('ATM')
@@ -147,22 +137,28 @@ ax2.grid(True)
 
 plt.tight_layout()
 
-# Nombre del archivo PDF
+# PDF file name
 pdf_file = "graficos.pdf"
 pdf_file = file_folder + name_without_extension + '_PERFORMANCE.pdf'
 
 info_text = (
+    f'Propellant Mass: {0.015} kg\n'
     f'Engine ignition at: {data.loc[ignition_index]["Ms"]} s\n'
     f'Engine shutdown at: {data.loc[burnout_index]["Ms"]} s\n'
-    f'Peak Pressure: {peak_pressure.round(3)} atm\n'
-    f'Peak Thrust:: {peak_thrust.round(3)} KgF\n'
     f'Burn time: {burn_time.round(3)} s\n'
     f'Average interval: {(average_time_interval * 1000).round(2)} ms\n'
+    f'Peak Pressure: {peak_pressure.round(3)} atm - {(peak_pressure / PSI_TO_ATM).round(3) } psi\n'
+    f'Average Pressure: {average_pressure.round(3)} atm - {(average_pressure / PSI_TO_ATM ).round(3)} psi\n'
+    f'Max Pressure increment: {max_pressure_increase.round(3)} atm - {(max_pressure_increase / PSI_TO_ATM ).round(3)} psi\n'
+    f'Max Pressure drop: {max_pressure_drop.round(3)} atm - {(max_pressure_drop / PSI_TO_ATM ).round(3)} psi\n'
     f'Thrust: {total_thrust} N\n'
-    f'Total impulse: {total_impulse.round(2)} N*s\n'
-    f'Specific impulse: {specific_impulse.round(2)} N*s\n'
+    f'Peak Thrust:: {peak_thrust.round(3)} N\n'
+    f'Total impulse: {total_impulse.round(2)} Ns\n'
+    f'Specific impulse: {specific_impulse.round(2)} s\n'
     f'Motor Classification: {classify_motor(total_impulse)}'
 )
+
+print(info_text)
 
 if os.path.exists(pdf_file):
     os.remove(pdf_file)
@@ -190,7 +186,7 @@ pdf.drawText(text_object)
 
 # Save Matplotlib figure to a file and add it to the PDF
 fig.savefig("temp_image.png", bbox_inches="tight")
-pdf.drawImage("temp_image.png", 50, 50, width=400, height=400)
+pdf.drawImage("temp_image.png", 50, 50, width=480, height=480)
 
 # Close the PDF
 pdf.save()
