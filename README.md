@@ -50,3 +50,16 @@ El codigo son valores entre 40 y 70 segun la tabla:
 Peso es el valor de la celda de carga (masa).
 ADC Value es un valor entre 0 y 1023 correspondiente a 0 - 5v
 
+## Analisis de datos
+
+El script de python `src\analisys\performance.py` toma la salida de datos en formato .csv y calcula y genera todo el analisis de datos automaticamente. Las principales funcionalidades son:
+
+1. Deteccion del inicio y final del funcionamiento del motor
+2. Estimacion del burn time
+3. Calculo de Empuje, Impulso e Impulso especifico
+4. Maximos de presion y empuje.
+
+La salida es un archivo PDF con como se ve a continuacion:
+
+![Salida PDF](https://github.com/laureano-arcanio/arduino-static-motor-test/blob/main/src/images/pdf_output.png)
+

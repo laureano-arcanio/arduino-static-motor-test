@@ -1,3 +1,17 @@
+/*
+
+  Arduino Rocket Computer
+
+  Authors:
+  -------------------
+    Laureano Arcanio
+    Jeremias Giorgi
+    Martiniano Arcanio
+
+  Contact Info
+  -------------------
+    larcanio@gmail.com
+*/
 
 #include "HX711.h"
 #include <SPI.h>
