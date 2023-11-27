@@ -63,33 +63,33 @@ def get_burnout_index(col_name, threeshold, start_index):
             return index -1
 
 def classify_motor(thrust):
-    if thrust <= 1.25:
+    if thrust <= 2.5:
         return 'A'
-    elif thrust <= 2.5:
-        return 'B'
     elif thrust <= 5.0:
-        return 'C'
+        return 'B'
     elif thrust <= 10.0:
-        return 'D'
+        return 'C'
     elif thrust <= 20.0:
-        return 'E'
+        return 'D'
     elif thrust <= 40.0:
-        return 'F'
+        return 'E'
     elif thrust <= 80.0:
-        return 'G'
+        return 'F'
     elif thrust <= 160.0:
-        return 'H'
+        return 'G'
     elif thrust <= 320.0:
-        return 'I'
+        return 'H'
     elif thrust <= 640.0:
-        return 'J'
+        return 'I'
     elif thrust <= 1280.0:
-        return 'K'
+        return 'J'
     elif thrust <= 2560.0:
-        return 'L'
+        return 'K'
     elif thrust <= 5120.0:
-        return 'M'
+        return 'L'
     elif thrust <= 10240.0:
+        return 'M'
+    elif thrust <= 20480.0:
         return 'N'
     else:
         return 'O'
