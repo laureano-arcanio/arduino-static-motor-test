@@ -1,65 +1,70 @@
+# Static Rocket Motor Tester
 
-# Probador Estatico de Motores de Cohete
-Codigo para Arduino UNO / Nano para medir fuerza y presion de Motores de coheteria modelo.
+Arduino UNO / Nano code for measuring the thrust and pressure of model rocket motors.
 
 ## Hardware
 
- - Arduino Uno / Nano
- - Lector de memorias SD con puerto SPI
- - Celda de carga con amplificador H711X
- - Relay
- - Push Button
- - 2 x Leds con resistencias
- - 1 Transductor de 0 a 5v
+- Arduino Uno / Nano
+- SD card reader with SPI interface
+- Load cell with H711X amplifier
+- Relay
+- Push button
+- 2 LEDs with resistors
+- 1 pressure transducer (0–5V)
 
-## Secuencia de prueba
+## Test Sequence
 
- 1. Setup: Calibracion de la Balanza y chequeo de Memoria
- 2. Si hay algun error los leds no se encenderan. Si esta listo para ignicion, los 2 leds se encenderan.
- 3. Estado de espera, de ignicion con 2 leds encendidos por tiempo indefinido.
- 4. El boton inicia el conteo de 30 segundos. Los dos leds parpadean.
- 5. El relay de ignicion se cierra y se comienzan a grabar los datos en la SD
- 6. Luego de 10 segundos el relay se abre por seguridad.
- 7. Se mantendran grabando datos por 120 segundos.
- 8. Fin de la secuencia
+1. **Setup:** Load cell calibration and SD card check.
+2. If an error occurs, the LEDs will remain off. If the system is ready for ignition, both LEDs will turn on.
+3. **Standby state:** The system remains ready for ignition, with both LEDs on indefinitely.
+4. Pressing the button starts a 30-second countdown. Both LEDs begin blinking.
+5. The ignition relay closes, and data recording to the SD card begins.
+6. After 10 seconds, the relay opens as a safety measure.
+7. Data recording continues for another 120 seconds.
+8. **End of sequence.**
 
-## Salida de datos
+## Data Output
 
-La salida de datos es un archivo con nombre `STATIC_1.csv` el numero 1 se genera segunb la cantidad de archivos en la memoria.
+The output is a CSV file named `STATIC_1.csv`. The number (1) is generated based on the number of existing files on the SD card.
 
-El formato de salida es:
+The output format is:
 
-| Tiempo | Codigo | Peso | ADC Value|
-|--|--|--|--|
-| 772 | 40 | 0 | 0 |
-| 782 | 60 | 3.2 | 10 |
-| 792 | 60 | 5.4 | 15|
-| 802 | 40 | 10.3 | 30 |
-| 812 | 40 | 30 | 50 |
+| Time | Code | Weight | ADC Value |
+| ---- | ---- | ------ | --------- |
+| 772  | 40   | 0      | 0         |
+| 782  | 60   | 3.2    | 10        |
+| 792  | 60   | 5.4    | 15        |
+| 802  | 40   | 10.3   | 30        |
+| 812  | 40   | 30     | 50        |
 
-El tiempo es relativo al encendido del arduino
-El codigo son valores entre 40 y 70 segun la tabla:
+- **Time:** Relative to when the Arduino is powered on.
+- **Code:** Status values between 40 and 70, according to the following table:
 
-    STATUS_ERROR = 10
-    STATUS_READY = 20
-    STATUS_COUNTDOWN = 30
-    STATUS_IGNITION = 40
-    STATUS_BURNING = 60
-    STATUS_FINISHED = 70
+```
+STATUS_ERROR = 10
+STATUS_READY = 20
+STATUS_COUNTDOWN = 30
+STATUS_IGNITION = 40
+STATUS_BURNING = 60
+STATUS_FINISHED = 70
+```
 
-Peso es el valor de la celda de carga (masa).
-ADC Value es un valor entre 0 y 1023 correspondiente a 0 - 5v
+- **Weight:** Load cell reading (mass).
+- **ADC Value:** A value between 0 and 1023, corresponding to an input voltage range of 0–5V.
 
-## Analisis de datos
+## Data Analysis
 
-El script de python `src\analisys\performance.py` toma la salida de datos en formato .csv y calcula y genera todo el analisis de datos automaticamente. Las principales funcionalidades son:
+The Python script `src/analysis/performance.py` takes the CSV output and automatically calculates and generates the complete data analysis.
 
-1. Deteccion del inicio y final del funcionamiento del motor
-2. Estimacion del burn time
-3. Calculo de Empuje, Impulso e Impulso especifico
-4. Maximos de presion y empuje.
+Its main features include:
 
-La salida es un archivo PDF con como se ve a continuacion:
+1. Detection of the motor's operating start and end times.
+2. Burn time estimation.
+3. Calculation of thrust, total impulse, and specific impulse.
+4. Maximum pressure and thrust calculations.
 
-![Salida PDF](https://github.com/laureano-arcanio/arduino-static-motor-test/blob/main/src/images/pdf_output.png)
+The output is a PDF report, as shown below:
 
+
+
+Clarify the sensor and status definitionsExplain the ignition timing more precisely
